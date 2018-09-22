@@ -1,12 +1,3 @@
-import csv
-import cv2
-import numpy as np 
-import matplotlib.image as mpimg
-
-
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
-
 # for mnist data
 import tensorflow as tf 
 
@@ -24,10 +15,10 @@ from keras.losses import categorical_crossentropy
 
 def cnn():
     """
-    Creates and returns the SermaNet model
+    Creates and returns the CNN model
     """
     # dropout probabilities
-    dropout_prob_cl = 0.25 # for convolutional layer (only used for SermaNet architecture)
+    dropout_prob_cl = 0.25 # for convolutional layer
     dropout_prob_fc = 0.5 # fully connected layers
 
     inputs = Input(shape = (28, 28, 1))
@@ -65,7 +56,7 @@ def cnn():
 
     concat = concatenate([conv3_1, conv3_2])
     concat = Dropout(dropout_prob_cl)(concat)
-    # concat = MaxPooling2D((2, 2))(concat)
+    concat = MaxPooling2D((2, 2))(concat)
 
     flat_layer = Flatten()(concat)
 
@@ -105,6 +96,9 @@ if __name__ == "__main__":
 
     # checkpoint = ModelCheckpoint('checkpoints/model-{epoch:03d}.h5', monitor='val_loss', verbose=0, save_best_only=False, mode='auto')
 
-    model.fit(x_train, y_train, validation_split = 0.1, shuffle = True, epochs=1)
+    model.fit(x_train, y_train, validation_split = 0.1, shuffle = True, epochs=10)
     model.save('model.h5')
     model.summary()
+    _, test_accuracy = model.evaluate(x_test, y_test, batch_size=batch_size)
+    print('test accuracy = ', test_accuracy)
+
