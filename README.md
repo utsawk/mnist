@@ -18,7 +18,6 @@ The project includes the following files:
 * train.py contains script to train on the mnist dataset
 * inference_server.py contains script to run the inference server
 * test*.png are some test images for the inference server
-* trained model can be downloaded from here
 * the trained weights can be downloaded from [here](https://www.dropbox.com/s/d8il7oqok1vzsd4/model.h5?dl=0)
 
 
