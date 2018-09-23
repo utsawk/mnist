@@ -1,6 +1,6 @@
 # for mnist data
 import tensorflow as tf 
-
+import argparse
 # keras setup
 from keras.datasets import mnist
 from keras.models import Model 
@@ -13,14 +13,13 @@ from keras.losses import categorical_crossentropy
 
 # from keras.callbacks import ModelCheckpoint
 
-def cnn():
+def cnn(dropout_prob_cl, dropout_prob_fc):
     """
     Creates and returns the CNN model
+    :param dropout_prob_cl: dropout probability for convolutional layers
+    :param dropout_prob_fc: dropout probability for fully connected layers
+    :return: keras CNN model
     """
-    # dropout probabilities
-    dropout_prob_cl = 0.25 # for convolutional layer
-    dropout_prob_fc = 0.5 # fully connected layers
-
     inputs = Input(shape = (28, 28, 1))
     preprocess = Lambda(lambda x: x / 255.0 - 0.5)(inputs)
 
@@ -56,7 +55,7 @@ def cnn():
 
     concat = concatenate([conv3_1, conv3_2])
     concat = Dropout(dropout_prob_cl)(concat)
-    concat = MaxPooling2D((2, 2))(concat)
+    # concat = MaxPooling2D((2, 2))(concat)
 
     flat_layer = Flatten()(concat)
 
@@ -74,10 +73,29 @@ def cnn():
     model = Model(inputs = inputs, outputs = prediction)
     return model
 
+def get_args():
+    """
+    function that parses and returns the command line inputs
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dropout_prob_cl", type = float, help = "dropout probability for convolutional layer", default = 0.25)
+    parser.add_argument("--dropout_prob_fc", type = float, help = "dropout probability for fully connected layer", default = 0.5)
+    parser.add_argument("--epochs", type = int, help = "number of epochs", default = 10)
+    parser.add_argument("--batch_size", type = int, help = "batch size", default = 32)
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == "__main__":
-    # read from file
+    # read from comand line
+    args = get_args()
+    dropout_prob_cl = args.dropout_prob_cl
+    dropout_prob_fc = args.dropout_prob_fc
+    epochs = args.epochs
+    batch_size = args.batch_size
+    # hard coding number of labels
     num_classes = 10
+    # loading mnist data
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     # convert class vectors to binary class matrices
     y_train = to_categorical(y_train, num_classes)
@@ -86,17 +104,15 @@ if __name__ == "__main__":
     x_train = x_train.reshape(x_train.shape[0], 28, 28,1)
     x_test = x_test.reshape(x_test.shape[0], 28, 28,1)
 
-    # batch size
-    batch_size = 32
-
-    model = cnn()
+    # create and train keras model
+    model = cnn(dropout_prob_cl, dropout_prob_fc)
 
 
     model.compile(loss=categorical_crossentropy, optimizer = 'adam', metrics=['accuracy'])
 
     # checkpoint = ModelCheckpoint('checkpoints/model-{epoch:03d}.h5', monitor='val_loss', verbose=0, save_best_only=False, mode='auto')
 
-    model.fit(x_train, y_train, validation_split = 0.1, shuffle = True, epochs=10)
+    model.fit(x_train, y_train, validation_split = 0.1, shuffle = True, epochs=epochs)
     model.save('model.h5')
     model.summary()
     _, test_accuracy = model.evaluate(x_test, y_test, batch_size=batch_size)
