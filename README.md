@@ -8,12 +8,16 @@ The goals / steps of this project are the following:
 * Train a convolutional neural network on mnist dataset
 * Run an inference server to make predictions
 
+### Dependencies
+Python3, tensorflow 1.0, Keras 2.2.2, OpenCV 3.4.1.
+Note that keras later versions have a known issue with tensorflow 1.0.0 with the softmax implementation (https://github.com/keras-team/keras/issues/9621). An easy fix is modifying how keras calls tensorflow softmax in keras/backend/tensorflow_backend.py (return tf.nn.softmax(x, axis=axis) —> return tf.nn.softmax(x))
+
 ### Files
 
 The project includes the following files:
 * train.py contains script to train on the mnist dataset
 * inference_server.py contains script to run the inference server
-* test*.png are some test images to try running the inference server
+* test*.png are some test images for the inference server
 
 ### Training
 The network can be trained by running the following: 
