@@ -18,8 +18,8 @@ def preprocess(image):
     :param image: raw input image
     :return: grayscale image of size (28,28,1) for inference
     """
-    if np.asarray(image.shape).shape[0] == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    image = image.convert('L')
+    image = np.asarray(image)
     image = cv2.resize(image, (28, 28))
     image = image.reshape(1, 28, 28, 1)
     return image
@@ -40,7 +40,7 @@ def predict():
             # read the image in PIL format
             image = flask.request.files["image"].read()
             image = Image.open(io.BytesIO(image))
-            image = np.asarray(image)
+            # image = np.asarray(image)
 
             # preprocess the image and prepare it for classification
             image = preprocess(image)
